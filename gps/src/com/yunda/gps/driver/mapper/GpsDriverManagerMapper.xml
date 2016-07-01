@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yunda.gps.driver.mapper.GpsDriverManagerMapper" >
+  <resultMap id="BaseResultMap" type="driverManager" >
+    <id column="ID" property="id" jdbcType="VARCHAR" />
+    <result column="NAME" property="userName" jdbcType="VARCHAR" />
+    <result column="LICENSECARD" property="carLicense" jdbcType="VARCHAR" />
+    <result column="COMPANY" property="corpId" jdbcType="VARCHAR" />
+    <result column="PHONE" property="telephone" jdbcType="VARCHAR" />
+    <result column="UPDATE_BY" property="updateUser" jdbcType="VARCHAR" />
+    <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createUser" jdbcType="VARCHAR" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="DELETE_FLAG" property="deleteFlag" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <!--分页查询-->
+  <select id="driverPageQuery" parameterType="driverManager" resultMap="BaseResultMap">
+  	SELECT
+		d.ID,
+		d.NAME,
+		d.LICENSECARD,
+		d.COMPANY,
+		d.PHONE,
+	  f.USER_NAME as UPDATE_BY,
+		date_format(d.UPDATE_TIME,'%Y-%c-%d %H:%i:%s') as UPDATE_TIME,
+		j.USER_NAME as CREATE_BY,
+		date_format(d.CREATE_TIME,'%Y-%c-%d %H:%i:%s') as CREATE_TIME
+    FROM driver d left join jcdf_user f on d.UPDATE_BY = f.USER_ID
+      left join jcdf_user j on d.CREATE_BY = j.USER_ID WHERE DELETE_FLAG = 0
+  	<if test="corpId !=null and corpId !=''">and COMPANY=#{corpId}</if>
+  	<if test="userName !=null and userName !=''">and Name=#{userName}</if>
+  	<if test="carLicense !=null and carLicense !=''">and LICENSECARD=#{carLicense}</if>
+  </select>
+  
+  <!--查询单位名称-->
+  <select id="retriveCorpName" resultType="string">
+  	SELECT NAME FROM VEHICLE_CATEGORY WHERE PARENT_CODE='0' AND MODEL_TYPE='company' AND DELETE_FLAG=0
+  </select>
+  
+  <!-- 增加驾驶员信息 -->
+  <insert id="insertGpsDriver" parameterType="driverManager" >
+  	INSERT INTO 
+  		DRIVER(ID,NAME,LICENSECARD,COMPANY,PHONE,CREATE_BY,CREATE_TIME) 
+  	VALUES(#{id,jdbcType=VARCHAR},#{userName,jdbcType=VARCHAR},#{carLicense,jdbcType=VARCHAR},#{corpId,jdbcType=VARCHAR},
+  	      #{telephone,jdbcType=CHAR},#{createUser,jdbcType=VARCHAR},#{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  
+  <select id="findByLicenseCard" parameterType="string" resultType="string" resultMap="BaseResultMap">
+  	SELECT LICENSECARD FROM DRIVER WHERE LICENSECARD=#{param1}
+  </select>
+  
+  <!-- 根据id删除 -->
+  <delete id="deleteGpsDriver">
+  	DELETE FROM DRIVER WHERE ID=#{id}
+  </delete>
+  
+  <!-- 根据id查找 -->
+  <select id="findInfoById" parameterType="string" resultMap="BaseResultMap">
+  	SELECT NAME,LICENSECARD,COMPANY,PHONE FROM DRIVER WHERE ID=#{id}
+  </select>
+  
+  <!-- 根据id更新 -->
+  <update id="updateGpsDriver">
+  	UPDATE DRIVER 
+  	SET NAME=#{userName},
+  	LICENSECARD=#{carLicense},
+  	COMPANY=#{corpId},
+  	PHONE=#{telephone},
+  	UPDATE_BY=#{updateUser},
+  	UPDATE_TIME=#{updateTime}
+  	WHERE ID =#{id}
+  </update>
+  
+  <!-- 导出 -->
+  <select id="gpsDriverExport" parameterType="driverManager" resultMap="BaseResultMap">
+  	SELECT
+		d.ID,
+		d.NAME,
+		d.LICENSECARD,
+		d.COMPANY,
+		d.PHONE,
+	  f.USER_NAME as UPDATE_BY,
+		date_format(d.UPDATE_TIME,'%Y-%c-%d %H:%i:%s') as UPDATE_TIME,
+		j.USER_NAME as CREATE_BY,
+		date_format(d.CREATE_TIME,'%Y-%c-%d %H:%i:%s') as CREATE_TIME
+    FROM driver d left join jcdf_user f on d.UPDATE_BY = f.USER_ID
+      left join jcdf_user j on d.CREATE_BY = j.USER_ID WHERE DELETE_FLAG = 0
+  	<if test="corpId !=null and corpId !=''">and COMPANY=#{corpId}</if>
+  	<if test="userName !=null and userName !=''">and Name=#{userName}</if>
+  	<if test="carLicense !=null and carLicense !=''">and LICENSECARD=#{carLicense}</if>
+  </select>
+</mapper>

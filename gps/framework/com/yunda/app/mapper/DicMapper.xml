@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yunda.app.mapper.DicMapper">
+ 	<!-- 字典信息实体与数据库表字段映射 -->
+	<resultMap id="dictionary" type="dictionary">
+		<id column="DIC_ID" property="dicId" />
+		<result column="DIC_NAME" property="dicName" />
+		<result column="DIC_TYPE" property="dicType" />
+		<result column="DIC_ORDER" property="dicOrder" />
+		<result column="DISCRIPTION" property="discription" />
+		<result column="delete_flag" property="deleteFlag" />
+		<result column="CREATE_TIME" property="createTime" />
+		<result column="CREATE_BY" property="createBy"></result>
+		<result column="UPDATE_TIME" property="updateTime" />
+		<result column="UPDATE_BY" property="updateBy"></result>
+	</resultMap>
+	
+	<!-- 加载全部字典信息-->
+	<select id="getAllDics" resultType="hashmap">
+		SELECT dic_id AS ID,dic_name AS NAME,dic_type AS TYPE FROM dictionarys  WHERE DELETE_FLAG=0
+	</select>
+	<!--通过分类加载名称  -->
+	<select id="getNameByType" resultType="hashmap" parameterType="string">
+		SELECT dic_id AS ID,dic_name AS NAME FROM dictionarys  WHERE DELETE_FLAG=0 
+		AND DIC_TYPE= #{type} 
+	</select>
+	<!-- 通过编码加载对应的字典中文解释 -->
+	<select id="getNameById" resultType="hashmap" parameterType="string">
+		SELECT dic_id AS ID,dic_name AS NAME FROM dictionarys  WHERE DELETE_FLAG=0 
+		AND DIC_ID= #{code} 
+	</select>
+	
+	
+		<!-- 分页查找所有的字典信息  -->
+	<select id="pageQuery" resultMap="dictionary" parameterType="dictionary">
+		SELECT DIC_ID,DIC_NAME,DIC_TYPE ,DIC_ORDER,DISCRIPTION,delete_flag,CREATE_TIME,CREATE_BY,
+		UPDATE_TIME,UPDATE_BY FROM dictionarys where 1=1
+		    <if test="dicId != null and dicId != ''" >and DIC_ID like '%'||#{dicId}||'%'</if>
+			<if test="dicName != null and dicName != ''" >and DIC_NAME like '%'||#{dicName}||'%'</if>
+			<if test="dicType != null and dicType!='' " >and DIC_TYPE =  #{dicType}</if>
+		order by DIC_ID desc
+	</select>
+	
+	<!-- 新增字典 -->
+	<insert id="insert" parameterType="dictionary">
+		 insert into dictionarys(DIC_ID,DIC_NAME,DIC_TYPE ,DIC_ORDER,DISCRIPTION,DELETE_FLAG,CREATE_TIME,CREATE_BY,
+		      UPDATE_TIME,UPDATE_BY) 
+		 values(#{dicId},#{dicName},#{dicType},#{dicOrder},#{discription},#{deleteFlag},#{createTime},#{createBy},
+              #{updateTime},#{updateBy})
+	</insert>
+	
+		<!-- 通过用户账号(Id)查询字典信息 -->
+	<select id="get" parameterType="String" resultMap="dictionary">
+	      select DIC_ID,DIC_NAME,DIC_TYPE ,DIC_ORDER,DISCRIPTION FROM dictionarys 
+	      where  delete_flag =0 and DIC_ID = #{dicId}  
+	</select>
+	
+	<select id="getDictionarys" parameterType="dictionary" resultMap="dictionary">
+	      select DIC_ID,DIC_NAME,DIC_TYPE ,DIC_ORDER,DISCRIPTION FROM dictionarys 
+	      where  delete_flag =0 
+	        <if test="dicId != null and dicId !='' ">and DIC_ID = #{dicId}</if>
+	        <if test="dicType != null and dicType!='' "> and dic_type = #{dicType}</if>
+			<if test="dicOrder != null "> and DIC_ORDER = #{dicOrder}</if>
+			<if test="dicName != null and dicName!='' ">and DIC_NAME = #{dicName}</if>
+            
+	</select>
+	
+		<!-- 根据Id进行字典信息修改 -->
+	<update id="update" parameterType="dictionary">
+		UPDATE dictionarys
+		<set>
+			<if test="dicType != null and dicType!='' ">dic_type = #{dicType},</if>
+			<if test="dicOrder != null ">DIC_ORDER = #{dicOrder},</if>
+			<if test="discription != null and discription !='' ">DISCRIPTION = #{discription},</if>
+			<if test="deleteFlag != null ">delete_flag = #{deleteFlag},</if>
+			<if test="updateTime != null and updateTime !='' ">update_time = #{updateTime},</if>
+			<if test="updateBy != null and updateBy !='' ">update_by = #{updateBy},</if>
+			<if test="dicName != null and dicName !='' ">DIC_NAME = #{dicName}</if>
+			
+		</set>
+		WHERE   DIC_ID = #{dicId}
+	</update>
+	
+		<!-- 根据ID删除仓库信息 -->
+	<delete id="deleteById" parameterType="string">
+		update dictionarys set delete_flag=1   where DIC_ID in
+            <foreach item="ids" index="index" collection="array"  open="(" separator="," close=")">
+                      #{ids}
+            </foreach>
+	</delete>
+	
+<!-- 通过名称加载对应的字典编码-->
+	<select id="nameToCode" resultType="hashmap" parameterType="string">
+		SELECT dic_id AS ID,dic_name AS NAME FROM dictionarys  WHERE DELETE_FLAG=0 
+		AND dic_name= #{name} 
+	</select>
+	<!-- 查询字典类型 -->
+	<select id="queryDicType" resultType="hashMap">
+		select t.dic_id as name ,t.dic_name as value from dictionarys t where t.delete_flag = 0
+		and t.dic_type = #{dicType}
+	</select>
+	
+</mapper>

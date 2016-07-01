@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yunda.app.mapper.AppRegMapper" >
+  <resultMap id="appReg" type="appReg" >
+    <id column="reg_id" property="regId" jdbcType="INTEGER" />
+    <result column="app_name" property="appName" jdbcType="VARCHAR" />
+    <result column="cont_man" property="contMan" jdbcType="VARCHAR" />
+    <result column="department" property="department" jdbcType="VARCHAR" />
+    <result column="phone_no" property="phoneNo" jdbcType="CHAR" />
+    <result column="bqq" property="bqq" jdbcType="INTEGER" />
+    <result column="ak" property="ak" jdbcType="CHAR" />
+    <result column="ip_white_list" property="ipWhiteList" jdbcType="VARCHAR" />
+    <result column="app_type" property="appType" jdbcType="INTEGER" />
+    <result column="del_flag" property="delFlag" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="update_by" property="updateBy" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    reg_id, app_name, cont_man, department, phone_no, bqq, ak, ip_white_list, app_type, 
+    del_flag, create_time, create_by, update_time, update_by
+  </sql>
+  <!-- 分页查找所有的应用注册信息  -->
+	<select id="pageQuery" parameterType="appReg" resultMap="appReg">
+		select 
+	    <include refid="Base_Column_List" /> 
+	    from inter_app_reg  where 1=1
+	         <if test="regId !=null ">and reg_id=#{regId}</if>
+		     <if test="appName != null and appName != '' " >and app_name =#{appName}</if>
+		     <if test="appType !=null ">and app_type=#{appType}</if>
+  	         <if test="ak !=null and ak !='' ">and ak=#{ak}</if>
+	</select>
+	<select id="checkAppRegIsExist" parameterType="appReg" resultMap="appReg">
+		select 
+        <include refid="Base_Column_List" />
+        FROM inter_app_reg where 
+		<if test="appName != null and appName!='' "> app_name=#{appName} </if>	
+	</select>
+  <select id="get" resultMap="appReg" parameterType="String" >
+    select 
+    <include refid="Base_Column_List" />
+    from inter_app_reg
+    where ak = #{ak,jdbcType=CHAR}
+  </select>
+  <update id="updateById" parameterType="appReg"  >
+    update inter_app_reg
+    set del_flag = #{delFlag,jdbcType=INTEGER},    
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      update_by = #{updateBy,jdbcType=VARCHAR}
+    where reg_id = #{regId,jdbcType=INTEGER}
+  </update>
+  <!-- 新增应用注册 -->
+  <insert id="insert" parameterType="appReg" >
+    insert into inter_app_reg (reg_id, app_name, cont_man, 
+      department, phone_no, bqq, 
+      ak, ip_white_list, app_type, 
+      del_flag, create_time, create_by, 
+      update_time, update_by)
+    values (#{regId,jdbcType=INTEGER}, #{appName,jdbcType=VARCHAR}, #{contMan,jdbcType=VARCHAR}, 
+      #{department,jdbcType=VARCHAR}, #{phoneNo,jdbcType=CHAR}, #{bqq,jdbcType=INTEGER}, 
+      #{ak,jdbcType=CHAR}, #{ipWhiteList,jdbcType=VARCHAR}, #{appType,jdbcType=INTEGER}, 
+      #{delFlag,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR})
+  </insert>
+  	<!-- 查询所有的应用注册信息 -->
+	<select id="list" resultMap="appReg">
+		select 
+	    <include refid="Base_Column_List" /> 
+	    from inter_app_reg
+	    order by create_time desc
+	</select>
+  <update id="update" parameterType="appReg" >
+    UPDATE inter_app_reg
+    set app_name = #{appName,jdbcType=VARCHAR},
+      cont_man = #{contMan,jdbcType=VARCHAR},
+      department = #{department,jdbcType=VARCHAR},
+      phone_no = #{phoneNo,jdbcType=CHAR},
+      bqq = #{bqq,jdbcType=INTEGER},
+      ip_white_list = #{ipWhiteList,jdbcType=VARCHAR},
+      app_type = #{appType,jdbcType=INTEGER},    
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      update_by = #{updateBy,jdbcType=VARCHAR}
+    where ak = #{ak,jdbcType=CHAR}
+  </update>
+</mapper>

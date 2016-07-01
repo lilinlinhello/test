@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yunda.gps.gpsEquipRegister.mapper.GpsEquipRegisterMapper" >
+
+  <resultMap id="gpsEquipRegisterVo" type="gpsEquipRegister" >
+    <id column="OA_ID" property="oaId" />
+    <result column="ORIGINAL_CAR_NUMBER" property="originalCarNumber"/>
+    <result column="NEW_CAR_NUMBER" property="newCarNumber"/>
+    <result column="CAR_LINE" property="carLine"/>
+    <result column="TELEPHONE" property="telephone" />
+    <result column="INSTALL_DATE" property="installDate"/>
+    <result column="INPUT_TIME" property="inputTime"/>
+    <result column="DELETE_FLAG" property="deleteFlag"/>
+    <result column="INPUT_USER" property="inputUser" />
+    <result column="UPLOAD_IMAGE_PATH" property="uploadImagePath"/>
+    <result column="EQUIP_STATUS" property="equipStatus"/>
+    <result column="INSTALL_PERSON" property="installPerson" />
+    <result column="MAINTAIN_DATE" property="maintainDate" />
+    <result column="MAINTAIN_PERSON" property="maintainPerson"/>
+    <result column="REPAIR_REASON" property="repairReason"/>
+    <result column="INSTALL_COMMENT" property="installComment"/>
+    <result column="EQUIP_TYPE" property="equipType"/>
+    <result column="IS_COMPLATE" property="isComplate"/>
+    <result column="REPORT_DATE" property="reportDate"/>
+    <result column="COMPLATE_DATE" property="complateDate"/>
+  </resultMap>
+  
+  <!--GPS设备维护登记分页查询 -->
+  <select id="pageQuery" resultMap="gpsEquipRegisterVo" parameterType="gpsEquipRegister">
+    SELECT  g.OA_ID
+          , g.ORIGINAL_CAR_NUMBER
+          , g.NEW_CAR_NUMBER
+          , g.CAR_LINE
+          , g.TELEPHONE
+          , date_format(g.INSTALL_DATE,'%Y-%c-%d %h:%i:%s') as INSTALLDATE
+          , date_format(g.INPUT_TIME,'%Y-%c-%d %h:%i:%s') as INPUT_TIME
+          , g.EQUIP_STATUS, g.INSTALL_PERSON
+          , g.REPAIR_REASON
+          , g.MAINTAIN_PERSON
+          , g.INSTALL_COMMENT
+          , g.IS_COMPLATE
+          , date_format(g.REPORT_DATE,'%Y-%c-%d %h:%i:%s') as REPORT_DATE
+          , date_format(g.COMPLATE_DATE,'%Y-%c-%d %h:%i:%s') as COMPLATE_DATE 
+          FROM  GPS_EQUIP_REGISTER g WHERE g.DELETE_FLAG=0  
+    <!--OA编号  --> 
+    <if test="oaId != null and oaId !=''"> AND g.OA_ID = #{oaId}</if>
+    <!--维修人  -->
+    <if test="inputUser != null and inputUser !=''"> AND g.INPUT_USER = #{inputUser}</if>
+    <!--维护类型   安装、维修、移机-->
+    <if test="equipStatus != null and equipStatus !=''"> AND g.EQUIP_STATUS = #{equipStatus}</if>
+    <!--维修原因  -->
+    <if test="repairReason != null and repairReason !=''"> AND g.REPAIR_REASON = #{repairReason}</if>
+    <!--任务进度  -->
+    <if test="isComplate != null "> AND g.IS_COMPLATE = #{isComplate}</if>
+    <!--安装人员 -->
+    <if test="installPerson != null and installPerson !=''"> AND g.INSTALL_PERSON = #{installPerson}</if>
+     <!--车牌类型为 0：新车牌   1：原车牌 -->
+    <if test="carNumType != null  and carNumType ==0">and g.NEW_CAR_NUMBER is not null</if>
+    <if test="carNumType != null  and carNumType ==1"> AND g.ORIGINAL_CAR_NUMBER is not null</if>
+    <!--录入时间  -->
+    <if test="minInputTime != null and minInputTime !=''">
+        <![CDATA[
+            AND g.INPUT_TIME >='${minInputTime}'
+        ]]> 
+    </if>  
+    <if test="maxInputTime != null and maxInputTime !=''">
+        <![CDATA[
+            AND g.INPUT_TIME <='${maxInputTime}'
+        ]]> 
+    </if> 
+    <!--车牌号根据选中的车牌类型查询 -->
+    <choose>
+        <when test="carNumType != null "> <!--选了车牌类型  -->
+            <if test="carNumType == 0 and carNum != null and carNum !=''"><!--选中新车牌类型，车牌号查新车牌号  -->
+                and g.NEW_CAR_NUMBER=#{carNum}
+            </if>
+            <if test="carNumType == 1 and carNum != null and carNum !=''"><!--选中原车牌类型，车牌号查原车牌号  -->
+                and g.ORIGINAL_CAR_NUMBER=#{carNum}
+            </if>
+        </when>
+        <otherwise><!--未选车牌类型，车牌号默认查询原车牌  -->
+            <if test="carNum != null and carNum !=''">
+               and g.ORIGINAL_CAR_NUMBER = #{carNum}
+            </if> 
+        </otherwise>
+    </choose>
+    ORDER BY g.INSTALL_DATE  
+  </select>
+
+  <!--查询OaId对应的记录  -->
+  <select id="selectByOaId" resultMap="gpsEquipRegisterVo" parameterType="String">
+    SELECT  g.OA_ID, g.ORIGINAL_CAR_NUMBER, g.NEW_CAR_NUMBER, g.CAR_LINE, g.TELEPHONE,g.INSTALL_DATE, 
+    g.INPUT_TIME, g.EQUIP_STATUS, g.INSTALL_PERSON, g.REPAIR_REASON, g.INSTALL_COMMENT, g.IS_COMPLATE, 
+    g.REPORT_DATE, g.COMPLATE_DATE FROM  GPS_EQUIP_REGISTER g
+    WHERE g.DELETE_FLAG=0 and g.OA_ID = #{oaId}
+  </select>
+  
+  <!--新增GPS设备登记记录    -->
+  <insert id="insertGpsER" parameterType="gpsEquipRegister" >
+    INSERT INTO GPS_EQUIP_REGISTER(
+      <if test="originalCarNumber != null and originalCarNumber!=''">ORIGINAL_CAR_NUMBER,</if>
+      <if test="newCarNumber != null and newCarNumber!=''">NEW_CAR_NUMBER,</if> 
+      <if test="carLine != null and carLine!=''" >CAR_LINE,</if>
+      <if test="telephone != null and telephone!=''" >TELEPHONE,</if>
+      <if test="installDate != null and installDate!=''" >INSTALL_DATE,</if>
+      <if test="inputTime != null and inputTime!=''" >INPUT_TIME,</if>
+      <if test="uploadImagePath != null and uploadImagePath!=''" >UPLOAD_IMAGE_PATH,</if>
+      <if test="equipStatus != null and equipStatus!=''" >EQUIP_STATUS,</if>
+      <if test="installPerson != null and installPerson!=''" >INSTALL_PERSON,</if> 
+   	  <if test="maintainDate != null and maintainDate!=''" >MAINTAIN_DATE,</if>
+      <if test="maintainPerson != null and maintainPerson!=''" > MAINTAIN_PERSON,</if> 
+      <if test="repairReason != null and repairReason!=''" >REPAIR_REASON,</if>
+      <if test="installComment != null and installComment!=''" >INSTALL_COMMENT,</if>
+      <if test="equipType != null and equipType!=''" >EQUIP_TYPE,</if>
+      <if test="isComplate != null" >IS_COMPLATE,</if>
+      <if test="reportDate != null and reportDate!=''" >REPORT_DATE,</if>
+      <if test="complateDate != null and complateDate!=''" >COMPLATE_DATE,</if>
+      <if test="deleteFlag != null and deleteFlag!=''" > DELETE_FLAG,</if>
+      <if test="inputUser != null and inputUser!=''" >INPUT_USER,</if>
+       OA_ID
+      ) VALUES(
+      <if test="originalCarNumber != null and originalCarNumber!=''">#{originalCarNumber},</if>
+      <if test="newCarNumber != null and newCarNumber!=''">#{newCarNumber},</if>  
+      <if test="carLine != null and carLine!=''" >#{carLine},</if>
+      <if test="telephone != null and telephone!=''" >#{telephone},</if>
+      <if test="installDate != null and installDate!=''" >#{installDate},</if>
+      <if test="inputTime != null and inputTime!=''" >#{inputTime},</if>
+      <if test="uploadImagePath != null and uploadImagePath!=''" >#{uploadImagePath},</if>
+      <if test="equipStatus != null and equipStatus!=''" >#{equipStatus},</if>
+      <if test="installPerson != null and installPerson!=''" >#{installPerson},</if> 
+      <if test="maintainDate != null and maintainDate!=''" >#{maintainDate},</if>
+      <if test="maintainPerson != null and maintainPerson!=''" >#{maintainPerson},</if>
+      <if test="repairReason != null and repairReason!=''" >#{repairReason},</if>
+      <if test="installComment != null and installComment!=''" >#{installComment},</if>
+      <if test="equipType != null and equipType!=''" >#{equipType},</if>
+      <if test="isComplate != null" >#{isComplate},</if>
+      <if test="reportDate != null and reportDate!=''" >#{reportDate},</if>
+      <if test="complateDate != null and complateDate!=''" >#{complateDate},</if>
+      <if test="deleteFlag != null and deleteFlag!=''" >#{deleteFlag},</if>
+      <if test="inputUser != null and inputUser!=''" >#{inputUser},</if>
+      #{oaId}
+      )
+  </insert>
+  
+  <!--修改GPS设备登记记录  -->
+  <update id="updateGpsER" parameterType="gpsEquipRegister" >
+    UPDATE GPS_EQUIP_REGISTER
+    <set>
+      <if test="originalCarNumber != null and originalCarNumber !=''" >ORIGINAL_CAR_NUMBER = #{originalCarNumber},</if>
+      <if test="newCarNumber != null and newCarNumber !=''" >NEW_CAR_NUMBER = #{newCarNumber},</if>
+      <if test="carLine != null and carLine !=''" >CAR_LINE = #{carLine},</if>
+      <if test="telephone != null and telephone !=''" >TELEPHONE = #{telephone},</if>
+      <if test="installDate != null and installDate !=''" >INSTALL_DATE = #{installDate},</if>
+      <if test="inputTime != null and inputTime !=''" >INPUT_TIME = #{inputTime},</if>
+      <if test="deleteFlag != null and deleteFlag !=''" >DELETE_FLAG = #{deleteFlag},</if>
+      <if test="inputUser != null and inputUser !=''" >INPUT_USER = #{inputUser},</if>
+      <if test="uploadImagePath != null and uploadImagePath !=''" >UPLOAD_IMAGE_PATH = #{uploadImagePath},</if>
+      <if test="equipStatus != null and equipStatus !=''" >EQUIP_STATUS = #{equipStatus},</if>
+      <if test="installPerson != null and installPerson !=''" >INSTALL_PERSON = #{installPerson},</if>
+      <if test="maintainDate != null and maintainDate !=''" >MAINTAIN_DATE = #{maintainDate},</if>
+      <if test="maintainPerson != null and maintainPerson !=''" >MAINTAIN_PERSON = #{maintainPerson},</if>
+      <if test="repairReason != null and repairReason !=''" >REPAIR_REASON = #{repairReason},</if>
+      <if test="installComment != null and installComment !=''" >INSTALL_COMMENT = #{installComment},</if>
+      <if test="equipType != null and equipType !=''" >EQUIP_TYPE = #{equipType},</if>
+      <if test="isComplate != null and isComplate != ''" >IS_COMPLATE = #{isComplate},</if>
+      <if test="reportDate != null and reportDate != ''" >REPORT_DATE = #{reportDate},</if>
+      <if test="complateDate != null and complateDate!=''" >COMPLATE_DATE = #{complateDate}</if>
+    </set>
+    WHERE OA_ID = #{oaId}
+  </update>
+  
+  <!--批量删除GPS设备登记记录  -->
+  <delete id="deleteByOaId" parameterType="String">
+    DELETE FROM GPS_EQUIP_REGISTER WHERE OA_ID IN 
+     <foreach item="ids" index="index" collection="array" open="(" separator="," close=")">#{ids}</foreach>
+  </delete>
+  
+</mapper>

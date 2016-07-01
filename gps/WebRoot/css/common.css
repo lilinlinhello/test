@@ -1,0 +1,156 @@
+*{
+	font-size:12px;
+}
+body {
+/*     background-color: #F4F4F4; */
+	font-family: 'Microsoft Yahei', Helvetica, Arial, sans-serif;
+	padding: 0;
+	font-size: 12px;
+	margin: 0px auto auto auto;
+	color: #000;
+}
+a{ text-decoration:none;}
+a:hover{color:#f63;}
+    /* 妫ｆ牠銆塱nfowindown娣団剝浼呯粣妞剧秼閺嶅嘲绱�瀵拷顬�     */
+   div.info-top {
+	position: relative;
+	background: none repeat scroll 0 0 #F9F9F9;
+	border-bottom: 1px solid #CCC;
+	border-radius: 5px 5px 0 0;
+	background-color: #fdd000;
+}
+
+div.info-top div {
+	display: inline-block;
+	color: #333333;
+	font-size: 14px;
+	font-weight: bold;
+	line-height: 28px;
+	padding: 0 10px;
+}
+
+div.info-top img {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	transition-duration: 0.25s;
+}
+
+div.info-top img:hover {
+	box-shadow: 0px 0px 5px #000;
+}
+
+div.info-middle {
+	font-size: 12px;
+	padding: 10px;
+	line-height: 21px;
+	border: 1px solid #ffff80;
+	overflow-y:auto;
+	overflow-x:hidden;
+}
+
+div.info-bottom {
+	height: 0px;
+	width: 100%;
+	clear: both;
+	text-align: center;
+}
+
+div.info-bottom img {
+	position: relative;
+	z-index: 104;
+}
+	 /* infowindow   */	
+	 
+/*鏌ヨ绐椾綋鏍峰紡 start*/
+#menu {
+	width:100%;
+}
+#searchPanel {
+	height:115px;
+	overflow:hidden;
+	padding:5px;
+}
+#searchPanel .searchArea{
+	border-collapse: collapse;
+	height:81px;
+	width:100%;
+	border-color: #FF7A02;
+	border-style: dashed;
+	border-width: 1px;
+}
+#searchPanel .searchArea td{
+	height: 20px;
+}
+#searchPanel .searchArea td:nth-child(odd){
+	text-align: right;
+	width:120px;
+}
+#searchPanel .searchArea td:nth-child(even){
+	text-align: left;
+	width:150px;
+}
+#searchPanel .searchMenu #icon-button{
+	text-align: center;
+}
+
+#searchPanel .searchArea input{
+	width: 150px;
+}
+#searchPanel .searchMenu{
+	width:100%;
+}
+/*鏌ヨ绐椾綋鏍峰紡 end*/
+ 
+ /*******瀹氫箟鐧诲綍鍚庨椤甸《閮ㄤ笌灏鹃儴鐨勬牱寮�********/
+ 
+/*  div .autoDefined { */
+/* background:-moz-linear-gradient(top,#b8c4cb,#f6f6f8);鐏嫄 */
+/* background: -ms-linear-gradient(top,#b8c4cb,#f6f6f8);IE */
+/* background:-webkit-gradient(linear, 0% 0%, 0% 100%,from(#b8c4cb), to(#f6f6f8));璋锋瓕 */
+/* background:-o-linear-gradient(top,#b8c4cb,#f6f6f8); opera */
+/* FILTER: progid:DXImageTransform.Microsoft.Gradient(gradientType=0,startColorStr=#b8c4cb,endColorStr=#f6f6f8);IE  */
+/* background:linear-gradient(top,#b8c4cb,#f6f6f8);  */
+/*  } */
+
+ div .autoDefined {
+background:-moz-linear-gradient(top,#f0e3bf,#FFCB07);
+background: -ms-linear-gradient(top,#f0e3bf,#FFCB07);
+background:-webkit-gradient(linear, 0% 0%, 0% 100%,from(#f0e3bf), to(#FFCB07));
+background:-o-linear-gradient(top,#f0e3bf,#FFCB07);
+FILTER: progid:DXImageTransform.Microsoft.Gradient(gradientType=0,startColorStr=#f0e3bf,endColorStr=#FFCB07);
+background:linear-gradient(top,#f0e3bf,#FFCB07); 
+ }
+ .logo img{
+    border:0;
+ }
+ /***div寮瑰嚭鍥惧眰鏍峰紡 **/
+.black_overlay{  
+			display: none;  
+			position: absolute; 
+			position:fixed!important;/* FF IE7+*/
+			top: 0%;  
+			left: 0%;  
+			width: 100%;  
+			height: 100%;  
+			z-index:1001;  
+			-moz-opacity: 0.8;  
+			opacity:80;  
+			filter: alpha(opacity=80);  
+ 			   }  
+ .white_content { 
+		display: none; 
+      	position: absolute;  
+      	top: 25%;  
+      	left: 25%;  
+      	width: 50%;  
+        height: 50%;  
+        padding: 16px;  
+        border: 1px solid black; 
+        background-color: white;  
+        z-index:1002;  
+        overflow: auto; 
+		position:fixed!important;/* FF IE7+*/ 
+}
+/***瀹氫綅鍥惧眰鏍峰紡 **/
+ /************end***********/

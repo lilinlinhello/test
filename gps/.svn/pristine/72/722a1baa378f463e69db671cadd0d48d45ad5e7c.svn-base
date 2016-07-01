@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yunda.gps.common.location.mapper.LocationMapper">
+ 	<!-- 地点信息实体与数据库表字段映射 -->
+	<resultMap id="location" type="location">
+		<id column="menu_code" property="provinceId" />
+		<result column="parent_menu_code" property="countryId" />
+		<result column="menu_name" property="cityId" />
+		<result column="menu_type" property="countyId" />
+		<result column="menu_mark" property="provinceStNm" />
+		<result column="menu_name" property="provinceStCode" />
+		<result column="menu_type" property="areaNm" />
+		<result column="menu_mark" property="areaNmEn" />
+	</resultMap>
+	
+	<!-- 地点三级联动 -->
+	<select id="loadLocation" resultType="hashmap" parameterType="string">
+		SELECT 
+		<if test="type==1">T.PROVINCE_ID AS value,</if>
+		<if test="type==2">T.CITY_ID AS value,</if>
+		<if test="type==3">T.COUNTY_ID AS value,</if>
+		T.AREA_NM AS name FROM BASE_AREA_LOCAL T WHERE COUNTRY_ID = #{country} 
+		<if test="type==1 and inputValue==null">AND  T.CITY_ID=0 AND T.COUNTY_ID=0</if>
+		<if test="type==1 and inputValue!=null">AND  T.CITY_ID=0 AND T.COUNTY_ID=0 AND ( T.AREA_NM LIKE '%'||#{inputValue}||'%')</if> <!-- T.PROVINCE_ID LIKE '%'||#{inputValue}||'%' OR -->
+		<if test="type==2 and inputValue==null">AND  T.COUNTY_ID=0 AND CITY_ID!=0 AND T.PROVINCE_ID=#{provinceId}</if>
+		<if test="type==2 and inputValue!=null">AND  T.COUNTY_ID=0 AND CITY_ID!=0 AND T.PROVINCE_ID=#{provinceId} AND (T.AREA_NM LIKE '%'||#{inputValue}||'%')</if>
+		<if test="type==3 and inputValue==null">AND  T.CITY_ID=#{cityId} AND COUNTY_ID!=0</if>
+		<if test="type==3 and inputValue!=null">AND  T.CITY_ID=#{cityId} AND COUNTY_ID!=0 AND T.AREA_NM LIKE '%'||#{inputValue}||'%'</if>
+	</select>
+	
+	<!-- 通过id加载省/市/县区/名称 -->
+	<select id="getNameById" resultType="hashmap" parameterType="string">
+		SELECT T.AREA_NM AS NAME FROM BASE_AREA_LOCAL T WHERE T.COUNTRY_ID='CN' AND 
+		<if test="type==1">T.PROVINCE_ID = #{id} AND T.CITY_ID=0 AND T.COUNTY_ID=0 </if>
+		<if test="type==2">T.CITY_ID = #{id} AND T.COUNTY_ID=0 </if>
+		<if test="type==3">T.COUNTY_ID = #{id}</if>
+	</select>
+		
+	<!-- 加载全部省名称 -->
+	<select id="getAllProvinceName" resultType="hashmap">
+		SELECT T.PROVINCE_ID AS ID,T.AREA_NM AS NAME FROM BASE_AREA_LOCAL T WHERE T.COUNTRY_ID='CN' AND T.CITY_ID=0 AND T.COUNTY_ID=0
+	</select>
+	<!-- 加载全部市名称 -->
+	<select id="getAllCityName" resultType="hashmap">
+		SELECT T.CITY_ID AS ID,T.AREA_NM AS NAME FROM BASE_AREA_LOCAL T WHERE T.COUNTRY_ID='CN' AND T.CITY_ID!=0 AND T.COUNTY_ID=0
+	</select>
+	<!-- 加载全部县名称 -->
+	<select id="getAllCountyName" resultType="hashmap">
+		SELECT T.COUNTY_ID AS ID,T.AREA_NM AS NAME FROM BASE_AREA_LOCAL T WHERE T.COUNTRY_ID='CN' AND T.COUNTY_ID!=0
+	</select>
+	<!-- 加载全部市省编码 -->
+	
+	<select id="getAllCityProvince" resultType="hashmap">
+	   SELECT A.CITY_ID as ID ,A.PROVINCE_ID AS PID FROM BASE_AREA_LOCAL A WHERE A.COUNTRY_ID='CN'
+	    AND A.COUNTY_ID=0 AND A.CITY_ID !=0 
+	</select>
+	
+	<select id="nameToCode" resultType="hashmap" parameterType="map">
+		SELECT  PROVINCE_ID , CITY_ID ,COUNTY_ID  FROM BASE_AREA_LOCAL  WHERE COUNTRY_ID='CN' 
+		<if test="type==1">AND  area_nm = #{name} AND CITY_ID=0 AND COUNTY_ID=0 </if>
+		<if test="type==2">AND  area_nm = #{name} AND COUNTY_ID=0 and PROVINCE_ID=#{provinceCode}</if>
+		<if test="type==3">AND  area_nm = #{name} and CITY_ID = #{cityCode} </if>
+	</select>
+	
+</mapper>

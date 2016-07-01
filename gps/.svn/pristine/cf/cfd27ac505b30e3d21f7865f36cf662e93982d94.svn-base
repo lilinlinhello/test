@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yunda.gps.vehicleCategory.mapper.VehicleCategoryMapper">
+
+	<resultMap id="BaseResultMap"
+		type="vehicleCategoryVo">
+		<id column="child_code" property="childCode" jdbcType="VARCHAR" />
+		<result column="update_by" property="updateBy" jdbcType="VARCHAR" />
+		<result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+		<result column="delete_flag" property="deleteFlag" jdbcType="INTEGER" />
+		<result column="create_by" property="createBy" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="model_type" property="modelType" jdbcType="VARCHAR" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="parent_code" property="parentCode" jdbcType="VARCHAR" />
+	</resultMap>
+	
+
+	<!-- 分页查询 -->
+	<select id="pageQuery" parameterType="vehicleCategoryVo" resultMap="BaseResultMap">
+		SELECT
+			a. NAME AS topName,
+			a.CHILD_CODE AS topCode,
+			b. NAME AS secondName,
+			b.CHILD_CODE AS secondCode,
+			c. NAME AS thirdName,
+			c.CHILD_CODE AS thirdCode
+		FROM VEHICLE_CATEGORY a
+		LEFT JOIN VEHICLE_CATEGORY b ON a.CHILD_CODE = b.PARENT_CODE and b.DELETE_FLAG = '0'
+		LEFT JOIN VEHICLE_CATEGORY c ON b.CHILD_CODE = c.PARENT_CODE and c.DELETE_FLAG = '0'
+		WHERE a.PARENT_CODE = '0' and a.DELETE_FLAG = '0'
+		<if test="modelType != null and modelType != ''">AND a.MODEL_TYPE = #{modelType}</if>
+		<if test="topName != null and topName != ''">AND a.NAME LIKE CONCAT('%', #{topName}, '%')</if>
+		<if test="secondName != null and secondName != ''">AND b.NAME LIKE CONCAT('%', #{secondName}, '%')</if>
+		<if test="thirdName != null and thirdName != ''">AND c.NAME LIKE CONCAT('%', #{thirdName}, '%')</if>
+	</select>
+
+	<sql id="Base_Column_List">
+		CHILD_CODE, UPDATE_BY, UPDATE_TIME, DELETE_FLAG, CREATE_BY,
+		CREATE_TIME,
+		MODEL_TYPE,
+		NAME, PARENT_CODE
+	</sql>
+
+	
+	<!-- 查询子节点 -->
+	<select id="select" resultType="hashmap" parameterType="vehicleCategoryVo">
+		SELECT t.CHILD_CODE AS id, t.NAME as name
+		FROM VEHICLE_CATEGORY t
+		WHERE t.DELETE_FLAG = '0'
+		<if test="modelType != null and modelType != ''">AND t.MODEL_TYPE = #{modelType}</if>
+		<if test="parentCode != null and parentCode != ''">AND t.PARENT_CODE = #{parentCode}</if>
+	</select>
+	
+	<!-- 主键查询 -->
+	<select id="selectById" resultMap="BaseResultMap" parameterType="string">
+		SELECT CHILD_CODE, UPDATE_BY, UPDATE_TIME, DELETE_FLAG, CREATE_BY, CREATE_TIME, MODEL_TYPE, NAME, PARENT_CODE
+		FROM VEHICLE_CATEGORY t
+		WHERE t.CHILD_CODE = #{id}		
+	</select>
+	
+	<!-- 通用条件查询 -->
+	<select id="selectSelective" resultMap="BaseResultMap" parameterType="vehicleCategoryVo">
+		SELECT CHILD_CODE, UPDATE_BY, UPDATE_TIME, DELETE_FLAG, CREATE_BY, CREATE_TIME, MODEL_TYPE, NAME, PARENT_CODE
+		FROM VEHICLE_CATEGORY
+		<where>
+			<if test="childCode != null and childCode !=''">
+				AND CHILD_CODE = #{childCode,jdbcType=VARCHAR}
+			</if>
+			<if test="updateBy != null and updateBy !=''">
+				AND UPDATE_BY = #{updateBy,jdbcType=VARCHAR}
+			</if>
+			<if test="updateTime != null and updateTime !=''">
+				AND UPDATE_TIME = #{updateTime,jdbcType=TIMESTAMP}
+			</if>
+			<if test="createBy != null and createBy !=''">
+				AND CREATE_BY = #{createBy,jdbcType=VARCHAR}
+			</if>
+			<if test="createTime != null and createTime !=''">
+				AND CREATE_TIME = #{createTime,jdbcType=TIMESTAMP}
+			</if>
+			<if test="modelType != null and modelType !=''">
+				AND MODEL_TYPE = #{modelType,jdbcType=VARCHAR}
+			</if>
+			<if test="name != null and name !=''">
+				AND NAME = #{name,jdbcType=VARCHAR}
+			</if>
+			<if test="parentCode != null and parentCode !=''">
+				AND PARENT_CODE = #{parentCode,jdbcType=VARCHAR}
+			</if>
+			<if test="deleteFlag != null">
+				AND DELETE_FLAG = #{deleteFlag,jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 逻辑删除 -->
+	<delete id="deleteByID" parameterType="java.lang.String">
+		UPDATE VEHICLE_CATEGORY SET DELETE_FLAG = 1
+		WHERE CHILD_CODE = #{id,jdbcType=VARCHAR}
+	</delete>
+	<delete id="backByID" parameterType="java.lang.String">
+		UPDATE VEHICLE_CATEGORY SET DELETE_FLAG = 0
+		WHERE CHILD_CODE = #{id,jdbcType=VARCHAR}
+	</delete>
+
+	<!-- 插入新数据 -->
+	<insert id="insert" parameterType="vehicleCategoryVo">
+		INSERT INTO VEHICLE_CATEGORY (CHILD_CODE, UPDATE_BY, UPDATE_TIME,
+		DELETE_FLAG, CREATE_BY, CREATE_TIME,
+		MODEL_TYPE, NAME, PARENT_CODE
+		)
+		VALUES (#{childCode,jdbcType=VARCHAR}, #{updateBy,jdbcType=VARCHAR},
+		#{updateTime,jdbcType=TIMESTAMP},
+		#{deleteFlag,jdbcType=INTEGER},
+		#{createBy,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+		#{modelType,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
+		#{parentCode,jdbcType=VARCHAR}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="vehicleCategoryVo">
+		INSERT INTO VEHICLE_CATEGORY
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="childCode != null">
+				CHILD_CODE,
+			</if>
+			<if test="updateBy != null">
+				UPDATE_BY,
+			</if>
+			<if test="updateTime != null">
+				UPDATE_TIME,
+			</if>
+			<if test="deleteFlag != null">
+				DELETE_FLAG,
+			</if>
+			<if test="createBy != null">
+				CREATE_BY,
+			</if>
+			<if test="createTime != null">
+				CREATE_TIME,
+			</if>
+			<if test="modelType != null">
+				MODEL_TYPE,
+			</if>
+			<if test="name != null">
+				NAME,
+			</if>
+			<if test="parentCode != null">
+				PARENT_CODE,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="childCode != null">
+				#{childCode,jdbcType=VARCHAR},
+			</if>
+			<if test="updateBy != null">
+				#{updateBy,jdbcType=VARCHAR},
+			</if>
+			<if test="updateTime != null">
+				#{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="deleteFlag != null">
+				#{deleteFlag,jdbcType=INTEGER},
+			</if>
+			<if test="createBy != null">
+				#{createBy,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				#{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modelType != null">
+				#{modelType,jdbcType=VARCHAR},
+			</if>
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="parentCode != null">
+				#{parentCode,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	
+	<!--  -->
+	<update id="updateByPrimaryKeySelective" parameterType="vehicleCategoryVo">
+		UPDATE VEHICLE_CATEGORY
+		<set>
+			<if test="updateBy != null">
+				UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+			</if>
+			<if test="updateTime != null">
+				UPDATE_TIME = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="deleteFlag != null">
+				DELETE_FLAG = #{deleteFlag,jdbcType=INTEGER},
+			</if>
+			<if test="createBy != null">
+				CREATE_BY = #{createBy,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modelType != null">
+				MODEL_TYPE = #{modelType,jdbcType=VARCHAR},
+			</if>
+			<if test="name != null">
+				NAME = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="parentCode != null">
+				PARENT_CODE = #{parentCode,jdbcType=VARCHAR},
+			</if>
+		</set>
+		WHERE CHILD_CODE = #{childCode,jdbcType=VARCHAR}
+	</update>
+
+
+	<update id="updateByPrimaryKey" parameterType="vehicleCategoryVo">
+		UPDATE VEHICLE_CATEGORY
+		SET UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+		UPDATE_TIME = #{updateTime,jdbcType=TIMESTAMP},
+		DELETE_FLAG =
+		#{deleteFlag,jdbcType=INTEGER},
+		CREATE_BY =
+		#{createBy,jdbcType=VARCHAR},
+		CREATE_TIME =
+		#{createTime,jdbcType=TIMESTAMP},
+		MODEL_TYPE =
+		#{modelType,jdbcType=VARCHAR},
+		NAME = #{name,jdbcType=VARCHAR},
+		PARENT_CODE = #{parentCode,jdbcType=VARCHAR}
+		WHERE CHILD_CODE =
+		#{childCode,jdbcType=VARCHAR}
+	</update>
+	
+	
+	<!-- childCode编码生成 -->
+	<select id="selectBy" resultType="vehicleCategory"  parameterType="vehicleCategoryVo">
+		SELECT
+		CHILD_CODE AS CHILDCODE ,PARENT_CODE AS PARENTCODE
+		FROM VEHICLE_CATEGORY
+		<where>
+			<if test="modelType != null and modelType != ''"> AND MODEL_TYPE = #{modelType}</if>
+			<if test="parentCode != null and parentCode !=''"> AND PARENT_CODE = #{parentCode}</if>
+		</where>
+		ORDER BY  CHILD_CODE DESC
+	</select>
+</mapper>

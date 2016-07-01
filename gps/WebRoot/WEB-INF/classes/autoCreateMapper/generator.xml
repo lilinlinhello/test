@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE generatorConfiguration  
+  PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"  
+  "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+   
+    <!-- classPathEntry:数据库的JDBC驱动的jar包地址-->  
+	<classPathEntry location="C:/Users/Administrator/workspace/gps_basis/WebRoot/WEB-INF\lib\mysql-connector-java-5.1.13-bin.jar" />
+	<context id="openshopsqlSessionFactory" targetRuntime="MyBatis3">
+
+		<commentGenerator>
+			<property name="suppressDate" value="true" />
+		</commentGenerator>
+  
+		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+			connectionURL="jdbc:mysql://10.19.105.218:3306/gps" userId="ggs"
+			password="nzON899V7hYFuoUS">
+		</jdbcConnection>
+	 <!--数据库连接的信息：驱动类、连接地址、用户名、密码 -->  
+<!-- 	   <jdbcConnection driverClass="oracle.jdbc.driver.OracleDriver" -->
+<!-- 			connectionURL="jdbc:oracle:thin:@10.19.105.113:1521:orcl" userId="MWS" -->
+<!-- 			password="MWS2015"> -->
+<!-- 		</jdbcConnection> -->
+
+		<javaTypeResolver>
+			<property name="forceBigDecimals" value="false" />
+		</javaTypeResolver>
+         <!-- targetProject:自动生成javaBean代码的位置 --> 
+		<javaModelGenerator targetPackage="com.yunda.gps.vehicleCategory"
+			targetProject="C:/Users/Administrator/workspace/gps_basis/src/">
+			<property name="enableSubPackages" value="true" />
+			<!-- 从数据库返回的值被清理前后的空格  -->   
+			<property name="trimStrings" value="true" />
+		</javaModelGenerator>
+        
+        <!-- xml文件 自动生成mapper.xml代码位置-->
+        <!-- enableSubPackages:是否让schema作为包的后缀 -->  
+		<sqlMapGenerator targetPackage="com.yunda.gps.vehicleCategory"
+			targetProject="C:/Users/Administrator/workspace/gps_basis/src/">
+			<property name="enableSubPackages" value="true" />
+		</sqlMapGenerator>
+		
+         <!-- 自动生成mapper接口代码位置-->
+		<javaClientGenerator type="XMLMAPPER" targetPackage="com.yunda.gps.vehicleCategory" 
+		     targetProject="C:/Users/Administrator/workspace/gps_basis/src/">
+			<property name="enableSubPackages" value="true" />
+		</javaClientGenerator>
+         <!-- tableName:用于自动生成代码的数据库表；domainObjectName:对应于数据库表的javaBean类名 -->  
+         <!--如果想要生成一个demo，则enableCountByExample设为true  -->
+		<table tableName="vehicle_category" domainObjectName="VehicleCategory" 
+		enableCountByExample="false" 
+        enableUpdateByExample="false" 
+        enableDeleteByExample="false" 
+        enableSelectByExample="false" 
+        selectByExampleQueryId="false" />
+	
+	</context>
+</generatorConfiguration> 
